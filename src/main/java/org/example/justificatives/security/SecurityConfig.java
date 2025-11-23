@@ -1,9 +1,9 @@
 package org.example.justificatives.security;
 
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
-import org.example.justificatives.filter.JwtFilter;
+import org.example.justificatives.filter.JwtAuthenticationFilter;
+import org.example.justificatives.filter.JwtAuthorizationFilter;
 import org.example.justificatives.service.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,24 +32,35 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authConfig) throws Exception {
+
+        // Create authentication filter (handles login)
+        JwtAuthenticationFilter authFilter = new JwtAuthenticationFilter(
+                jwtUtils,
+                authenticationManager(authConfig)
+        );
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilter(authFilter) // Add login filter
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class) // Add token validation filter
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
     }
 
     @Bean
-    public Filter jwtAuthenticationFilter() {
-        return new JwtFilter(jwtUtils, userDetailsService);
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+        return new JwtAuthorizationFilter(jwtUtils, userDetailsService);
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

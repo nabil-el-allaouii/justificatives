@@ -9,6 +9,7 @@ import org.example.justificatives.repository.DocumentRepository;
 import org.example.justificatives.repository.SocieteRepository;
 import org.example.justificatives.repository.UtilisateurRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ public class DataLoader implements CommandLineRunner {
     private final SocieteRepository societeRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final DocumentRepository documentRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Override
     public void run(String... args) throws Exception {
@@ -47,7 +49,7 @@ public class DataLoader implements CommandLineRunner {
         // Create Utilisateurs - SOCIETE role
         Utilisateur user1 = new Utilisateur();
         user1.setEmail("comptable@maroctelecom.ma");
-        user1.setPassword("password123");
+        user1.setPassword(passwordEncoder.encode("password123"));
         user1.setNomComplet("Ahmed Alami");
         user1.setRole(Utilisateur.Role.SOCIETE);
         user1.setSociete(societe1);
@@ -55,7 +57,7 @@ public class DataLoader implements CommandLineRunner {
         
         Utilisateur user2 = new Utilisateur();
         user2.setEmail("finance@cosumar.ma");
-        user2.setPassword("password123");
+        user2.setPassword(passwordEncoder.encode("password123"));
         user2.setNomComplet("Fatima Benani");
         user2.setRole(Utilisateur.Role.SOCIETE);
         user2.setSociete(societe2);
@@ -64,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
         // Create Utilisateurs - COMPTABLE role
         Utilisateur comptable1 = new Utilisateur();
         comptable1.setEmail("comptable@alamane.ma");
-        comptable1.setPassword("password123");
+        comptable1.setPassword(passwordEncoder.encode("password123"));
         comptable1.setNomComplet("Hassan Tazi");
         comptable1.setRole(Utilisateur.Role.COMPTABLE);
         comptable1.setSociete(null);
@@ -72,7 +74,7 @@ public class DataLoader implements CommandLineRunner {
         
         Utilisateur comptable2 = new Utilisateur();
         comptable2.setEmail("expert@alamane.ma");
-        comptable2.setPassword("password123");
+        comptable2.setPassword(passwordEncoder.encode("password123"));
         comptable2.setNomComplet("Samira Idrissi");
         comptable2.setRole(Utilisateur.Role.COMPTABLE);
         comptable2.setSociete(null);
